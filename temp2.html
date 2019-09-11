@@ -1,0 +1,23 @@
+<html>
+  <head>
+
+  </head>
+
+  <body>
+    <<script type="text/javascript">
+      function readTextFile(file)
+      {
+          var rawFile = new XMLHttpRequest();
+          var reader = new FileReader();
+          reader.onload = function(){
+            var text = reader.result;
+            console.log(reader.result.substring(0, 200));
+          };
+          reader.readAsText(file);
+      }
+
+      //readTextFile("file:///C:/your/path/to/file.txt");
+      readTextFile("C:\Users\developer\Documents\GitHub\note\tenYear.txt")
+    </script>
+  </body>
+</html>

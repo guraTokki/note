@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My first Vue app</title>
+  <script src="https://unpkg.com/vue"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <div>
+      {{ message }}
+    </div>
+    <div v-if="state == 1">
+      "Ten Year Fin"
+      
+      <div v-for="item in datas">
+        <div>
+          {{item.code}}
+          <a v-bind:href="'https://finance.daum.net/quotes/A'+item.code+'#analysis/main'" target="_blank">Daum</a>
+          <a v-bind:href="'https://finance.naver.com/item/coinfo.nhn?code='+item.code" target="_blank">Naver</a>
+        </div>
+        <!--
+        <table>
+          <thead>
+            <tr><th>day</th><th>eps_c</th></tr>
+          </thead>
+          <tbody v-for="data in item.data">
+            <tr><td>{{data.day}}</td><td>{{data.eps_c}}</td></tr>
+          </tbody>
+        </table>
+      -->
+        <table>
+          <thead>
+            <tr><th>투자지표</th><th v-for="data in item.data">{{data.day}}</th></tr>
+          </thead>
+          <tbody>
+            <tr><th>eps_c</th><td v-for="data in item.data">{{data.eps_c}}</td></tr>
+            <tr><th>eps_i</th><td v-for="data in item.data">{{data.eps_i}}</td></tr>
+            <tr><th>net Asset</th><td v-for="data in item.data">{{data.netAssetPerShare}}</td></tr>
+            <tr><th>roe</th><td v-for="data in item.data">{{data.roe}}</td></tr>
+          </tbody>
+        </table>
+        <div>
+          <ul>
+            <li>roe평균: {{item.avgRoe}} dev: {{item.stdDev}}</li>
+            <li>a: {{item.A}} b: {{item.B}} e: {{item.E}}</li>
+            <li>예상 순자산: {{item.enetAsset}}</li>
+            <li>예상값: {{item.expect}}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    store = {
+      message: 'Hello Vue!',
+      state: 0,
+      datas: {}
+    }
+    
+    axios.get("/api/tenYear")
+    .then(res => {
+      //console.log(res)
+      store.datas = res.data,
+      store.state = 1
+      console.log('request complete')
+    })
+
+    var app = new Vue({
+      el: '#app',
+      data: store,
+      computed: {
+        allFinance: function() {
+          return this.datas.map( item => [item.code].concat(item.data) )
+        }
+      }
+    })
+
+
+  </script>
+</body>
+</html>
