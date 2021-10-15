@@ -1,0 +1,97 @@
+
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="http://d3js.org/d3.v3.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="./diagram.js"></script>
+    <script src="./WorkflowEditor.js"></script>
+  </head>
+  <body>
+    <div>
+      <h1> diagram</h1>
+    </div>
+    <script type="text/javascript">
+      function dblcick(evt) {
+        console.log("test dblcick", evt.path)
+      }
+    </script>
+    <svg id="diagram11" width="500" height="700" ondblclick="dblcick(evt)">
+        <defs>
+          <marker id="arrow" refX="12" refY="3" markerWidth="30" markerhight="30" orient="auto">
+            <path d="M0,0 L0,6 L12,3 z" fill="black"></path>
+          </marker>
+        </defs>
+      <g ondblclick="dblcick(evt)">
+        <rect fill="transparent" x="51" y="133" height="22" width="170" style="stroke: black; stroke-width: 2;"></rect>
+        <foreignobject x="51" y="133" height="22" width="170" ondblclick="dblcick(evt)">
+          <div> data </div>
+          <textarea> text here </textarea>
+        </foreignobject>
+      </g>
+      </svg>
+
+    <!--
+    <div class="diagram" width="100%" height="100%">
+      <svg id="diagram" width="100%" height="100%">
+
+      </svg>
+
+    </div>
+    -->
+    <div class="" width="100%" height="100%">
+      <svg width="500" height="700">
+        <g>
+          <rect x="0" y="0" width="100" height="20" fill="white" stroke="black"></rect>
+          <text x="0" y="12" font-family="Verdana" font-size="12" width="150">mloop:EventLoop</text>
+        </g>
+        <g>
+          <rect x="0" y="100" width="150" height="100" fill="white" stroke="black"></rect>
+          <text x="0" y="112" font-family="Verdana" font-size="12" width="150">lstn:EvListener:EvListenerBase:EvSession:EventBase</text>
+        </g>
+        <g>
+          <rect x="0" y="170" width="100" height="20" fill="white" stroke="black"></rect>
+          <text x="0" y="182" font-family="Verdana" font-size="12" width="150">EventBase::_loop</text>
+        </g>
+        <g><line x1="50" y="10" x2="50" y2="180" stroke-width="1" stroke="black"></line></g>
+      </svg>
+    </div>
+    <div class='workflow' >
+      <svg tabindex="1" id="diagram" width="500" height="700" ondblclick="dblcick(evt)">
+        <defs>
+          <marker id="arrow" refX="12" refY="3" markerWidth="30" markerHight="30" orient="auto">
+            <path d="M0,0 L0,6 L12,3 z" fill="black"></path>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+    <!--svg id='circle' viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="80" cy="80" r="40" fill="blue"/>
+      <circle cx="120" cy="120" r="40" fill="green"/>
+      <g id="line-group" stroke-width="2" stroke="black">
+          <line x1="0" y1="10" x2="190" y2="200" />
+          <line x1="10" y1="0" x2="200" y2="190" />
+      </g>
+
+    </svg>
+<script type="text/javascript">
+    var svg = document.querySelector("#circle");
+    var line_group = document.getElementById("line-group");
+    svg.insertBefore(line_group, svg.firstChild);
+</script-->
+    <script >
+      console.log("diagram")
+      svg = document.querySelector("#diagram")
+      //var svg = d3.select("#diagram")
+      diagram = new Diagrm(svg)
+      diagram.makeSample()
+      //diagram.svg = svg
+
+      workflowEditor = new WorkflowEditor(svg);
+      workflowEditor.Diagram = diagram
+
+      workflowEditor.draw(svg)
+    </script>
+  </body>
+</html>
