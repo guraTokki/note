@@ -48,8 +48,8 @@ class Rectangle {
   Contains(obj) {
     if(obj instanceof Point) {
       var x = obj.x, y = obj.y
-      if( (this.x <= x && x < this.x + this.width)
-        && (this.y <= y && y < this.y + this.height) ) {
+      if( (this.x <= x && x <= this.x + this.width)
+        && (this.y <= y && y <= this.y + this.height) ) {
           return true
         }
         return false
@@ -69,6 +69,10 @@ class Rectangle {
   get Right() { return this.x + this.width}
   get Top() { return this.y}
   get Bottom() {return this.y + this.height}
+
+  get Center() {
+    return new Point( this.x + this.width/2, this.y + this.height/2)
+  }
 }
 exports.Rectangle = Rectangle
 
@@ -366,12 +370,14 @@ class Node extends Drawable {
     this.OutPort.SetPosition(this.m_rtBound.Right, (this.m_rtBound.Top + this.m_rtBound.Bottom)/2)
     this.ResizePort.SetPosition(this.m_rtBound.Right+5, this.m_rtBound.Bottom+5)
 
+    /*
     var nPortCount = this.m_arrPorts.length
     for(var ii = 0; ii < nPortCount; ii++) {
       var x = (this.m_rtBound.Right - this.m_rtBound.Left)/nPortCount * (ii+1)
       var y = (this.m_rtBound.Top - this.m_rtBound.Bottom)/nPortCount * (ii+1)
       this.Ports[ii].SetPosition(x, y)
     }
+    */
   }
 
   Draw(svg) {
@@ -406,7 +412,8 @@ class Node extends Drawable {
     this.OutPort.Draw()
     this.ResizePort.Draw()
 
-    this.Ports.forEach((item, i) => { item.Draw()
+    this.Ports.forEach((item, i) => {
+      //item.Draw()
 
     });
 
@@ -423,6 +430,8 @@ class Edge extends Drawable {
     super()
     this.From = null
     this.To = null
+
+    this.m_oPoints = []
 
     var svgns = "http://www.w3.org/2000/svg";
     var element = document.createElementNS(svgns, 'line');
@@ -448,6 +457,8 @@ class Edge extends Drawable {
     var element = this.Element
     element.setAttribute("x1", (this.From.m_rtBound.Left + this.From.m_rtBound.Right)/2)
     element.setAttribute("y1", (this.From.m_rtBound.Top + this.From.m_rtBound.Bottom)/2)
+
+
   }
 
   get To() {return this.m_oToNode}
@@ -462,6 +473,15 @@ class Edge extends Drawable {
     element.setAttribute("x2", (this.To.m_rtBound.Left + this.To.m_rtBound.Right)/2)
     element.setAttribute("y2", (this.To.m_rtBound.Top + this.To.m_rtBound.Bottom)/2)
   }
+
+  GetPointCount() { return this.m_oPoints.length}
+  GetPointAt(i) {return this.m_oPoints[i]}
+  AddPoint(pt) { this.m_oPoints.push(pt)}
+  RemovePoint(pt) {/*todo */}
+  RemovePointAt(i) {/*todo*/}
+  IndexOfPoint(pt) {/*todo*/}
+  ContainPoint(pt) {/*todo*/}
+
   Draw(svg) {
     /*
     var svgns = "http://www.w3.org/2000/svg";
@@ -476,6 +496,22 @@ class Edge extends Drawable {
     svg.appendChild(element)
     this.m_oElement = element
     */
+
+    var pt1 = this.From.m_rtBound.Center
+    var pt2 = this.To.m_rtBound.Center
+
+    var from = IntersectionPoint(this.From.m_rtBound, pt1, pt2)
+    var to = IntersectionPoint(this.To.m_rtBound, pt1, pt2)
+
+    this.m_oPoints[0] = from
+    this.m_oPoints[1] = to
+
+    this.Element.setAttribute("x1", from.x)
+    this.Element.setAttribute("y1", from.y)
+    this.Element.setAttribute("x2", to.x)
+    this.Element.setAttribute("y2", to.y)
+
+
   }
   MoveDelta() {
     this.m_oElement.setAttribute("x1", (this.From.m_rtBound.Left+this.From.m_rtBound.Right)/2)
@@ -614,6 +650,43 @@ class Diagram {
         return oNode
       }
     }
+
+    for(var ii = 0; ii < this.Edges.length; ii++) {
+      var oEdge = this.Edges[ii]
+      var bOnEdge = false
+      for(var ix = 0; ix < oEdge.GetPointCount() -1; ix++) {
+        var startp = oEdge.GetPointAt(ix)
+        var endp = oEdge.GetPointAt(ix+1)
+        //console.log("x:", x, "y:", y, "S.x:", startp.x, "S.y:", startp.y, "E.x:",endp.x, "E.y:", endp.y)
+
+        if( (endp.x - startp.x) == 0) {
+          if( (x - startp.x) == 0) {
+            if( (y - startp.y) * (y - endp.y) < 0) {
+              bOnEdge = true
+              break
+            }
+          }
+        } else if( (endp.y - startp.y) == 0) {
+          if( (x - startp.x) * (x - endp.x) < 0) {
+            bOnEdge = true
+            break
+          }
+        } else{
+          var d1 = (endp.y - startp.y)/(endp.x - startp.x)
+          var d2 = (y - startp.y)/(x - startp.x)
+          //console.log("d2/d1:", d2/d1)
+          if( 0.9 < d2/d1 && d2/d1 < 1.1) {
+            bOnEdge = true;
+            break;
+          }
+        }
+      }
+      if(bOnEdge) {
+        console.log("pick at edge", x, y)
+        return oEdge
+      }
+    }
+
     //return null
   }
 
@@ -637,6 +710,8 @@ class Diagram {
     } else if(obj instanceof Point) {
       this.SelectPoint(obj)
     } else if(obj instanceof Node) {
+      this.SelectDrawable(obj)
+    } else if(obj instanceof Edge) {
       this.SelectDrawable(obj)
     }
   }
@@ -682,6 +757,9 @@ class Diagram {
 
   DeselectAll() {
     this.Nodes.forEach((item, i) => {
+      this.UnSelect(item)
+    });
+    this.Edges.forEach((item, i) => {
       this.UnSelect(item)
     });
   }

@@ -422,6 +422,9 @@ class MouseHandlerManager  extends MouseHandler {
             } else if(oPort == oPort.Owner.ResizePort) {
               this.SetActiveHandler("resize")
             }
+          } else if(oDrawable instanceof Edge) {
+            oDiagram.DeselectAll();
+            oDiagram.Select(oDrawable)
           }
         } else {  //  아무것도 선택되지 않았다면
           oDiagram.DeselectAll()
@@ -605,17 +608,22 @@ class WorkflowEditor {
       //evt.cancelBubble = true;
       if(evt.key == "Delete") {
         for(var ii = 0; ii < this.Diagram.SelectedObjects.length; ii++){
-          var oNode = this.Diagram.SelectedObjects[ii]
-          if( oNode.Editable) continue
-          /* remove edge */
-          for(var ij = 0; ij < this.Diagram.Edges.length; ij++) {
-            var oEdge = this.Diagram.Edges[ij]
-            if(oNode == oEdge.From || oNode == oEdge.To) {
-              this.Diagram.RemoveEdge(oEdge)
+          var oDrawable = this.Diagram.SelectedObjects[ii]
+          if( oDrawable instanceof Node) {
+            var oNode = this.Diagram.SelectedObjects[ii]
+            if( oNode.Editable) continue
+            /* remove edge */
+            for(var ij = 0; ij < this.Diagram.Edges.length; ij++) {
+              var oEdge = this.Diagram.Edges[ij]
+              if(oNode == oEdge.From || oNode == oEdge.To) {
+                this.Diagram.RemoveEdge(oEdge)
+              }
             }
+            /* remove node */
+            this.Diagram.RemoveNode(oNode)
+          } else if(oDrawable instanceof Edge) {
+            this.Diagram.RemoveEdge(oEdge)
           }
-          /* remove node */
-          this.Diagram.RemoveNode(oNode)
         }
         this.Diagram.SelectedObjects.splice(0, this.Diagram.SelectedObjects.length)
       }
