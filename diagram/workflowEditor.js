@@ -622,7 +622,7 @@ class WorkflowEditor {
             /* remove node */
             this.Diagram.RemoveNode(oNode)
           } else if(oDrawable instanceof Edge) {
-            this.Diagram.RemoveEdge(oEdge)
+            this.Diagram.RemoveEdge(oDrawable)
           }
         }
         this.Diagram.SelectedObjects.splice(0, this.Diagram.SelectedObjects.length)
