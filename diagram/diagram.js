@@ -510,7 +510,18 @@ class Edge extends Drawable {
     this.Element.setAttribute("y1", from.y)
     this.Element.setAttribute("x2", to.x)
     this.Element.setAttribute("y2", to.y)
+    if(this.Selected) {
+      this.Element.setAttribute("stroke", "blue");
+      this.Element.setAttribute("stroke-width", 3)
+    } else {
+      this.Element.setAttribute("stroke", "black");
+      this.Element.setAttribute("stroke-width", 1)
+    }
 
+    if(this.Editable) {
+      var textarea = document.createElement("textarea")
+      this.Element.appendChild(textarea)
+    }
 
   }
   MoveDelta() {
@@ -674,10 +685,18 @@ class Diagram {
         } else{
           var d1 = (endp.y - startp.y)/(endp.x - startp.x)
           var d2 = (y - startp.y)/(x - startp.x)
-          //console.log("d2/d1:", d2/d1)
-          if( 0.9 < d2/d1 && d2/d1 < 1.1) {
+          console.log("d2/d1:", d2/d1, d1, d2, d1-d2)
+
+          //if( 0.9 < d2/d1 && d2/d1 < 1.1
+          if( -0.15 < (d1 - d2) && (d1 -d2) < 0.15
+            && (x - startp.x) * (x - endp.x) < 0
+            && (y - startp.y) * (y - endp.y) < 0) {
             bOnEdge = true;
             break;
+          } else {
+            console.log("d1:", d1, "d2", d2, "d1-d2", d1-d2)
+            console.log("(x - startp.x) * (x - endp.x)", (x - startp.x) * (x - endp.x))
+            console.log("(y - startp.y) * (y - endp.y)", (y - startp.y) * (y - endp.y))
           }
         }
       }
